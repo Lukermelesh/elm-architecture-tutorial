@@ -22,12 +22,13 @@ main =
 type alias Model =
   { topic : String
   , gifUrl : String
+  , errorMsg : String
   }
 
 
 init : String -> (Model, Cmd Msg)
 init topic =
-  ( Model topic "waiting.gif"
+  ( Model topic "waiting.gif" ""
   , getRandomGif topic
   )
 
@@ -39,19 +40,23 @@ init topic =
 type Msg
   = MorePlease
   | NewGif (Result Http.Error String)
+  | Topic String
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
+    Topic topic ->
+      ({ model | topic = topic }, Cmd.none)
+
     MorePlease ->
       (model, getRandomGif model.topic)
 
     NewGif (Ok newUrl) ->
-      (Model model.topic newUrl, Cmd.none)
+      (Model model.topic newUrl "", Cmd.none)
 
-    NewGif (Err _) ->
-      (model, Cmd.none)
+    NewGif (Err msg) ->
+      ({ model | errorMsg = toString msg }, Cmd.none)
 
 
 
@@ -64,10 +69,27 @@ view model =
     [ h2 [] [text model.topic]
     , button [ onClick MorePlease ] [ text "More Please!" ]
     , br [] []
+    , maybeRenderError model
+    , dropdownMenu model
+    , br [] []
     , img [src model.gifUrl] []
     ]
 
+dropdownMenu : Model -> Html Msg
+dropdownMenu model =
+  select [ onInput Topic ]
+    [ option [ value "cats" ] [ text "cats" ]
+    , option [ value "dogs" ] [ text "dogs" ]
+    , option [ value "penguins" ] [ text "penguins" ]
+    ]
 
+
+maybeRenderError: Model -> Html Msg
+maybeRenderError model =
+  if String.length model.errorMsg > 0 then
+    div [] [ text ("ERROR: " ++ model.errorMsg) ]
+  else
+    text ""
 
 -- SUBSCRIPTIONS
 
