@@ -38,17 +38,11 @@ type Msg
   = Tick Time
   | SetTimeFlow Bool
 
--- Tutorial says "Add a button to pause the clock, turning the Time subscription off."
--- so this isn't entirely correct, because we don't unsubscribe
--- "correct" version is in 06-clock-unsub.elm
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     Tick newTime ->
-      if model.stopped == True then
-        ( model, Cmd.none )
-      else
-        ({ model | time = newTime }, Cmd.none)
+      ({ model | time = newTime }, Cmd.none)
 
     SetTimeFlow state ->
       ({ model | stopped = state }, Cmd.none)
@@ -56,11 +50,11 @@ update msg model =
 
 -- SUBSCRIPTIONS
 
-
 subscriptions : Model -> Sub Msg
 subscriptions model =
-  Time.every second Tick
-
+    if model.stopped
+    then Sub.none
+    else Time.every second Tick
 
 
 -- VIEW
