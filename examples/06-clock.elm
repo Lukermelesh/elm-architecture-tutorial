@@ -86,10 +86,10 @@ getHand time handLength handWidth =
       turns time
 
     handX =
-      toString (50 + 40 * handLength * cos angle)
+      toString (50 + 40 * handLength * sin angle)
 
     handY =
-      toString (50 + 40 * handLength * sin angle)
+      toString (50 - 40 * handLength * cos angle)
 
   in
     line [ x1 "50", y1 "50", x2 handX, y2 handY, stroke "#023963", strokeWidth (toString handWidth) ] []
